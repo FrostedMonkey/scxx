@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.info.ColorDao">
+    <select id="findColor" resultType="com.yizu.scgcxx.model.Color">
+        select * from info_color
+
+        <where>
+            <!-- co_status='55' -->
+            <if test="coStatus != null and coStatus != '' ">
+                and co_status = #{coStatus}
+            </if>
+            <if test="coId != null">
+                and co_id like concat('%',#{coId},'%')
+            </if>
+            <if test="coName != null and coName != '' ">
+                and co_name like concat('%',#{coName},'%')
+            </if>
+            <if test="coRemark != null and coRemark  != '' ">
+                and co_remark like concat('%',#{coRemark},'%')
+            </if>
+        </where>
+    </select>
+    <insert id="adColor">
+        <selectKey keyProperty="coId" resultType="int"
+                   order="BEFORE">
+            select ifnull(max(co_id),0)+1 from info_color
+        </selectKey>
+
+        insert into info_color values
+        (#{coId},#{coName},#{coRemark},'00')
+
+    </insert>
+
+
+    <update id="upColor">
+        update info_color
+        <set>
+            <if test="coName!=null and coName!=''">
+                co_name=#{coName},
+            </if>
+            <if test="coRemark!=null and coRemark!=''">
+                co_remark=#{coRemark},
+            </if>
+            <if test="coStatus!=null and coStatus!=''">
+                co_status=#{coStatus}
+            </if>
+        </set>
+        where
+        co_id=#{coId}
+    </update>
+
+    <delete id="deleteAlColor">
+        delete from info_color
+        where
+        <foreach collection="array" item="item" open="" close="" separator="or">
+            co_id = #{item}
+        </foreach>
+    </delete>
+
+
+    <delete id="deColor">
+        update info_color
+        set co_status=99
+        where co_id=#{id}
+    </delete>
+    <update id="updateSt">
+        update
+        info_color
+        set
+        co_status=#{param2}
+
+        <where>
+            1 &lt;&gt; 1 or
+            <foreach collection="param1" item="coId" open="" close="" separator="or">
+
+                co_id = #{coId}
+
+            </foreach>
+        </where>
+
+    </update>
+    <select id="colorQuery" resultType="com.yizu.scgcxx.model.Color">
+        select co_Id,co_Name from info_color
+    </select>
+</mapper>

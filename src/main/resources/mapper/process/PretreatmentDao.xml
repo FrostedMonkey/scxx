@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.process.PretreatmentDao">
+    <select id="getUnPretreatment" resultType="com.yizu.scgcxx.model.Process">
+        select
+        process_id,
+        substring_index(process_color,"|",-1) process_color,
+        substring_index(process_cus,"|",-1) process_cus,
+        substring_index(process_std,"|",-1) process_std,
+        group_num
+        from bus_process where process_status='05'
+    </select>
+    <select id="getPretreatment" resultType="com.yizu.scgcxx.model.Process">
+        select
+        process_id,
+        substring_index(process_color,"|",-1) process_color,
+        substring_index(process_cus,"|",-1) process_cus,
+        substring_index(process_std,"|",-1) process_std,
+        group_num,
+        pretreat_num
+        from bus_process where process_status='10'
+    </select>
+    <select id="getAll" resultType="com.yizu.scgcxx.model.Process">
+        select
+        pro.process_id,
+        substring_index(pro.process_color,"|",-1) process_color,
+        substring_index(pro.process_cus,"|",-1) process_cus,
+        substring_index(pro.process_std,"|",-1) process_std,
+        pro.group_num,
+        pro.pretreat_num,
+        pro.process_status,
+        pla.plan_type
+        from bus_process pro
+        inner JOIN bus_plan pla on pro.plan_id=pla.plan_id
+        where pro.process_status!='00'
+        and pro.process_status!='05'
+
+    </select>
+    <update id="completePre">
+        update bus_process set
+        process_status=#{processStatus}
+        ,pretreat_num=#{pretreatNum}
+        ,pretreat_date=now()
+        ,pretreat_person=#{pretreatPerson}
+        where process_id=#{processId}
+
+    </update>
+</mapper>

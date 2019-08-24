@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.process.DyeDao">
+    <select id="getDye" resultType="com.yizu.scgcxx.model.Process">
+        select
+        pro.process_id,
+        substring_index(pro.process_color,"|",-1) process_color,
+        substring_index(pro.process_cus,"|",-1) process_cus,
+        substring_index(pro.process_std,"|",-1) process_std,
+        pro.group_num,
+        pro.pretreat_num,
+        pla.plan_type
+        from bus_process pro inner JOIN bus_plan pla on pro.plan_id=pla.plan_id
+        where
+        (pro.process_status='10' and pla.plan_type=2)or
+        (pro.process_status='10' and pla.plan_type=4)
+
+    </select>
+    <update id="completeDyeById">
+        update bus_process set
+        process_status=#{processStatus}
+        ,dye_num=#{dyeNum}
+        ,dye_date=now()
+        ,dye_person=#{dyePerson}
+        where process_id=#{processId}
+    </update>
+    <select id="getCompleteDye" resultType="com.yizu.scgcxx.model.Process">
+        select
+        process_id,
+        substring_index(process_color,"|",-1) process_color,
+        substring_index(process_cus,"|",-1) process_cus,
+        substring_index(process_std,"|",-1) process_std,
+        group_num,
+        pretreat_num,
+        dye_num
+        from bus_process where process_status="15"
+    </select>
+    <select id="getAll" resultType="com.yizu.scgcxx.model.Process">
+        select
+        pro.process_id,
+        substring_index(pro.process_color,"|",-1) process_color,
+        substring_index(pro.process_cus,"|",-1) process_cus,
+        substring_index(pro.process_std,"|",-1) process_std,
+        pro.group_num,
+        pro.pretreat_num,
+        pro.process_status,
+        pla.plan_type
+        from bus_process pro inner JOIN bus_plan pla on pro.plan_id=pla.plan_id
+        where
+        (pro.process_status!='10'
+        and pro.process_status!='00'
+        and pro.process_status!='05'
+        and pla.plan_type=2)
+        or(pro.process_status!='10'
+        and pro.process_status!='00'
+        and pro.process_status!='05'
+        and pla.plan_type=4
+        )
+
+    </select>
+</mapper>

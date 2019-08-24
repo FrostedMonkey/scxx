@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.safty.LoginDao">
+
+    <resultMap id="UrResultMap" type="com.yizu.scgcxx.model.Ur">
+        <id column="u_id" jdbcType="VARCHAR" property="uId"/>
+        <id column="ro_id" jdbcType="INTEGER" property="roId"/>
+        <association property="user" javaType="com.yizu.scgcxx.model.User">
+            <id column="u_id" jdbcType="VARCHAR" property="uId"/>
+            <result column="u_name" jdbcType="VARCHAR" property="uName"/>
+            <result column="u_pwd" jdbcType="VARCHAR" property="uPwd"/>
+            <result column="u_status" jdbcType="CHAR" property="uStatus"/>
+        </association>
+        <association property="role" javaType="com.yizu.scgcxx.model.Role">
+            <id column="ro_id" jdbcType="INTEGER" property="roId"/>
+            <result column="ro_name" jdbcType="VARCHAR" property="roName"/>
+            <result column="ro_remark" jdbcType="VARCHAR" property="roRemark"/>
+            <result column="ro_status" jdbcType="CHAR" property="roStatus"/>
+        </association>
+    </resultMap>
+
+    <select id="getUser" resultType="com.yizu.scgcxx.model.User">
+        select u_id,u_name,u_pwd,u_status from sys_user
+        where u_id = #{uId} and u_pwd =#{uPwd}
+    </select>
+
+</mapper>
+
+
+
+

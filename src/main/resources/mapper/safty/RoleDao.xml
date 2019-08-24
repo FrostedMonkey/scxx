@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.safty.RoleDao">
+    <select id="getRole" resultType="com.yizu.scgcxx.model.Role">
+        select * from sys_role
+        <where>
+            <if test="roId!=null">
+                ro_id like concat('%',#{roId},'%')
+            </if>
+            <if test="roName!=null and roName!=''">
+                and ro_name like concat('%',#{roName},'%')
+            </if>
+            <if test="roRemark!=null and roRemark!=''">
+                and ro_remark like concat('%',#{roRemark},'%')
+            </if>
+            <if test="roStatus!=null and roStatus!=''">
+                and ro_status=#{roStatus}
+            </if>
+        </where>
+    </select>
+    <update id="deleteById">
+        update sys_role set ro_status='99' where ro_id
+        =#{roId}
+    </update>
+    <update id="updateById">
+        update sys_role set ro_status=#{roStatus} where ro_id
+        =#{roId}
+    </update>
+    <insert id="addRole">
+        <selectKey keyProperty="roId" resultType="int" order="BEFORE">
+            select
+            ifnull(max(ro_id),0)+1 from sys_role
+        </selectKey>
+
+        insert into sys_role values
+        (#{roId},#{roName},#{roRemark},'00')
+    </insert>
+    <update id="updataRole">
+        update sys_role
+        <set>
+            <if test="roName!=null and roName!=''">
+                ro_name=#{roName},
+            </if>
+            <if test="roRemark!=null and roRemark!=''">
+                ro_remark=#{roRemark},
+            </if>
+            <if test="roStatus!=null and roStatus!=''">
+                ro_status=#{roStatus}
+            </if>
+        </set>
+        where ro_id =#{roId}
+    </update>
+
+    <update id="deleteByIds">
+        update sys_role set ro_status='99' where `ro_id` in
+        <foreach item="item" index="index" collection="array" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+    <update id="updateByIds">
+        update sys_role set ro_status=#{roStatus}
+        <where>
+            <foreach collection="roIds" item="roId" open="" close=""
+                     separator="or">
+                ro_id = #{roId}
+            </foreach>
+        </where>
+    </update>
+    <select id="getRoleModules" resultType="com.yizu.scgcxx.model.Module">
+        select
+        p.m_id p_id ,
+        p.m_name p_name ,
+        c.m_id,
+        c.m_name,
+        rm.ro_id
+        from
+        sys_module p
+        join sys_module c on p.m_id = c.m_pid
+        left join (select ro_id,m_id from sys_rm where ro_id =#{ro_id} ) rm on rm.m_id = c.m_id
+
+        where
+        p.m_status = '55' and
+        p.m_ismenu = 1 AND
+        p.m_pid is null and
+        c.m_status = '55' and
+        c.m_ismenu = 1 AND
+        c.m_pid is not null
+
+        order by p.m_id,c.m_id
+    </select>
+    <delete id="deleteModuleById">
+        delete from sys_rm where ro_id=#{roId}
+    </delete>
+    <insert id="insertRoleModules">
+        insert into
+
+        sys_rm(ro_id,m_id)
+
+        values
+        <foreach collection="mIds" item="mId" index="i" open="" close="" separator=",">
+            (#{roId},#{mId})
+        </foreach>
+    </insert>
+</mapper>

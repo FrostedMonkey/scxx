@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.process.PrintDao">
+
+
+    <select id="getPrint" resultType="com.yizu.scgcxx.model.Process">
+        select
+        p.*
+        from
+        bus_process p
+        INNER JOIN bus_plan n ON p.plan_id = n.plan_id
+        where
+        (n.plan_type=3 AND p.process_status = #{status3})
+        or
+        (n.plan_type=4 and p.process_status = #{status4})
+
+    </select>
+
+    <update id="updateStstus">
+        update bus_process
+        set process_status=#{processStatus} ,
+        print_num=#{printNum} ,
+        print_date=now() ,
+        print_person=#{printPerson}
+        where process_id=#{processId}
+
+    </update>
+
+    <select id="getPrintHou" resultType="com.yizu.scgcxx.model.Process">
+        select
+        p.plan_id,
+        p.process_status,
+        p.process_id,
+        p.process_cus,
+        p.process_std,
+        p.process_color,
+        p.group_num,
+        p.pretreat_num,
+        p.dye_num,
+        p.print_num,
+        p.process_status,
+        n.plan_type
+        from
+        bus_process p
+        INNER JOIN bus_plan n ON p.plan_id = n.plan_id
+        where
+        p.process_status &gt; '15' AND
+        (n.plan_type=3 or n.plan_type=4)
+    </select>
+
+</mapper>

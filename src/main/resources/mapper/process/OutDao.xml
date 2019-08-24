@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.process.OutDao">
+    <select id="getUnout" resultType="com.yizu.scgcxx.model.Store">
+        select
+        ore.product_id,
+        uct.process_id,
+        uct.product_num,
+        ore.store_id,
+        ore.store_cus,
+        ore.store_std,
+        ore.store_color,
+        ore.store_num,
+        (uct.product_num-IFNULL((select sum(store_num) from bus_store where product_id=uct.product_id and
+        store_status='70'),0)) product_residue
+        from bus_store ore inner join bus_product uct on ore.product_id=uct.product_id
+        where ore.store_status='60'
+    </select>
+    <update id="updateStore">
+        update bus_store set
+        store_out_date=now(),
+        store_out_per=#{storeOutPer},
+        store_status='70'
+        where
+        store_id=#{storeId}
+
+
+    </update>
+    <select id="queryStore" resultType="com.yizu.scgcxx.model.Store">
+        SELECT
+        store_id,store_status
+        FROM
+        bus_store
+        WHERE
+        product_id =#{productId}
+        ORDER BY store_status
+    </select>
+    <update id="updateProduct">
+        update bus_product set product_status=#{productStatus}
+        where product_id=#{productId}
+    </update>
+    <select id="queryProduct" resultType="com.yizu.scgcxx.model.Product">
+        SELECT
+        product_status
+        FROM
+        bus_product
+        WHERE
+        process_id=#{processId} and product_num!=0
+        ORDER BY product_status
+    </select>
+    <update id="updateProcess">
+        UPDATE bus_process set process_status=#{processStatus}
+        where process_id=#{processId}
+    </update>
+    <select id="getAll" resultType="com.yizu.scgcxx.model.Store">
+        select * from bus_store
+        where store_status='70'
+    </select>
+</mapper>

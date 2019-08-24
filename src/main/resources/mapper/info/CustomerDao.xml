@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.info.CustomerDao">
+
+    <sql id="Base_Column_List">
+        cus_id, cus_name, cus_remark, cus_status
+    </sql>
+
+    <select id="getCustomer" resultType="com.yizu.scgcxx.model.Customer">
+        select
+        <include refid="Base_Column_List"/>
+        from info_customer
+        <where>
+            <if test="cus_id != null">
+                and cus_id like concat('%',#{cus_id},'%')
+            </if>
+            <if test="cus_name != null and cus_name!=''">
+                and cus_name like concat('%',#{cus_name},'%')
+            </if>
+            <if test="cus_remark != null and cus_remark !=''">
+                and cus_remark like concat('%',#{cus_remark},'%')
+            </if>
+            <if test="cus_status != null and cus_status !=''">
+                and cus_status = #{cus_status}
+            </if>
+            <if test="cus_status == null or cus_status ==''">
+                and cus_status != '99'
+            </if>
+        </where>
+    </select>
+
+    <update id="updateById">
+        update info_customer
+        <set>
+            <if test="cusName != null">
+                cus_name = #{cusName,jdbcType=VARCHAR},
+            </if>
+            <if test="cusRemark != null">
+                cus_remark = #{cusRemark,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where cus_id = #{cusId,jdbcType=INTEGER}
+    </update>
+
+    <update id="delById">
+        update info_customer
+        set cus_status = 99
+        where cus_id = #{cusId,jdbcType=INTEGER}
+    </update>
+
+    <update id="deleteByIds">
+        update info_customer
+        set cus_status = 99
+        where cus_id in
+        <foreach close=")" collection="array" index="index" item="cusId" open="(" separator=",">
+            #{cusId}
+        </foreach>
+    </update>
+
+    <insert id="addCus">
+        insert into info_customer
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="cusName != null">
+                cus_name,
+            </if>
+            <if test="cusRemark != null">
+                cus_remark,
+            </if>
+            cus_status,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="cusName != null">
+                #{cusName,jdbcType=VARCHAR},
+            </if>
+            <if test="cusRemark != null">
+                #{cusRemark,jdbcType=VARCHAR},
+            </if>
+            '00'
+        </trim>
+    </insert>
+    <update id="updateCustomerStatus">
+        update info_customer
+        set cus_status = #{cus_status}
+        where cus_id = #{cus_id,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateCustomerStatusByIds">
+        update
+        info_customer
+        set
+        cus_status=#{cus_status}
+        where cus_id in
+        <foreach open="(" collection="ids" item="cusId" close=")" separator=",">
+            #{cusId}
+        </foreach>
+    </update>
+    <select id="customerQuery" resultType="com.yizu.scgcxx.model.Customer">
+        select cus_Id,cus_Name from info_customer
+    </select>
+</mapper>

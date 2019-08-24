@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.safty.HomeDao">
+
+    <select id="findMenus" resultType="com.yizu.scgcxx.model.Module">
+        select p.m_id p_id,p.m_name p_name,m.m_id,m.m_name,m.m_url
+        from
+        sys_module p join sys_module m on m.m_pid=p.m_id
+        join sys_rm rm on m.m_id = rm.m_id
+        join sys_role role on rm.ro_id = role.ro_id
+        join sys_ur as ur on role.ro_id=ur.ro_id
+        WHERE
+        ur.u_id=#{userId} and
+        m.m_status='55' and
+        m.m_ismenu=1 and
+        p.m_pid is null and
+        p.m_status='55' and
+        p.m_ismenu=1
+        order by p.m_id,m.m_id
+    </select>
+    <select id="getMobileMenus" resultType="com.yizu.scgcxx.model.Module">
+        select * from sys_module
+        where
+        m_status='55' and
+        m_ismenu=1 and
+        m_id in (2510,2515,2520,2525,2540,2545)
+        order by m_id
+    </select>
+</mapper>
+
+
+
+

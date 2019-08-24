@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.process.PkgDao">
+    <select id="PkgDo" resultType="com.yizu.scgcxx.model.Product">
+        select
+        product_id,
+        process_id,
+        product_cus,
+        product_std,
+        process_color,
+        product_level,
+        product_num,
+        product_status,
+        (product_num-IFNULL((select sum(store_num) from bus_store where product_id=bus_product.product_id),0))
+        product_residue
+        from bus_product
+        where product_status>'30' and product_num!=0
+    </select>
+    <insert id="addPkg">
+        INSERT INTO bus_store (
+        product_id,
+        store_cus,
+        store_std,
+        store_color,
+        store_num,
+        store_status
+        )
+        VALUE(
+        #{productId},
+        #{productCus},
+        #{productStd},
+        #{processColor},
+        #{storeNum},
+        #{productStatus}
+        )
+    </insert>
+    <!--查找质检的这一批产品未打包的数量-->
+    <select id="queryTotalYu" resultType="com.yizu.scgcxx.model.Process">
+        select
+
+        (ess.check_num-IFNULL(sum(ore.store_num),0)) as process_total2
+        from
+        bus_process ess inner join bus_product uct on ess.process_id=uct.process_id
+        inner join bus_store ore on uct.product_id=ore.product_id
+        where ess.process_id=#{processId}
+    </select>
+    <update id="updateProduct">
+
+        UPDATE bus_product SET product_status=#{productStatus}
+        <if test="processId!=null and processId!=''">
+            where process_id=#{processId}
+            and product_num=0
+        </if>
+        <if test="productId!=null and productId!=''">
+            where product_id=#{productId}
+        </if>
+    </update>
+    <update id="updateProcess">
+        UPDATE bus_process set process_status=#{processStatus}
+        where process_id=#{processId}
+    </update>
+</mapper>

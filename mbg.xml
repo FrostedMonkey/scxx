@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <!-- 不需要 -->
+    <!-- <classPathEntry location="/Program Files/IBM/SQLLIB/java/db2java.zip"
+        /> -->
+    <context id="DB2Tables" targetRuntime="MyBatis3">
+        <!-- 配置 suppressAllComments 为true表示生成的文件不包含注释 -->
+        <commentGenerator>
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+
+        <jdbcConnection
+                driverClass="com.mysql.jdbc.Driver"
+                connectionURL="jdbc:mysql://localhost:3306/prjdb?useSSL=false"
+                userId="root"
+                password="111111">
+        </jdbcConnection>
+
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!-- 指定java bean生成的位置 -->
+        <javaModelGenerator
+                targetPackage="com.yizu.scgcxx.model"
+                targetProject=".\src\main\java">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!-- 指定SQL映射文件生成的位置 -->
+        <sqlMapGenerator
+                targetPackage="mapper"
+                targetProject=".\src\main\resources">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+
+        <!-- 指定dao接口生成的位置 -->
+        <javaClientGenerator type="XMLMAPPER"
+                             targetPackage="com.yizu.scgcxx.dao"
+                             targetProject=".\src\main\java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+        <!-- 指定每个表的生成策略 -->
+        <table tableName="bus_plan" domainObjectName="BusPlan"></table>
+        <table tableName="bus_process" domainObjectName="BusProcess"></table>
+        <table tableName="bus_product" domainObjectName="BusProduct"></table>
+        <table tableName="bus_store" domainObjectName="BusStore"></table>
+        <table tableName="info_color" domainObjectName="InfoColor"></table>
+        <table tableName="info_customer" domainObjectName="InfoCustomer"></table>
+        <table tableName="info_standard" domainObjectName="InfoStandard"></table>
+        <table tableName="sys_module" domainObjectName="SysModule"></table>
+        <table tableName="sys_rm" domainObjectName="SysRm"></table>
+        <table tableName="sys_role" domainObjectName="SysRole"></table>
+        <table tableName="sys_ur" domainObjectName="SysUr"></table>
+        <table tableName="sys_user" domainObjectName="SysUser"></table>
+    </context>
+</generatorConfiguration>

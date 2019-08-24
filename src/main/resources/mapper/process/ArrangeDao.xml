@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.process.ArrangeDao">
+    <select id="getUnArrange" resultType="com.yizu.scgcxx.model.Process">
+        select
+        pro.process_id,
+        substring_index(pro.process_color,"|",-1) process_color,
+        substring_index(pro.process_cus,"|",-1) process_cus,
+        substring_index(pro.process_std,"|",-1) process_std,
+        pro.group_num,
+        pro.pretreat_num,
+        pro.process_status,
+        pro.dye_num,
+        pro.print_num,
+        pla.plan_type
+        from bus_process pro inner JOIN bus_plan pla on pro.plan_id=pla.plan_id
+        where
+        (pro.process_status='10' and pla.plan_type=1)or
+        (pro.process_status='15' and pla.plan_type=2)or
+        (pro.process_status='20' and pla.plan_type=3)or
+        (pro.process_status='20' and pla.plan_type=4)
+    </select>
+    <select id="getArrange" resultType="com.yizu.scgcxx.model.Process">
+        select
+        pro.process_id,
+        substring_index(pro.process_color,"|",-1) process_color,
+        substring_index(pro.process_cus,"|",-1) process_cus,
+        substring_index(pro.process_std,"|",-1) process_std,
+        pro.group_num,
+        pro.pretreat_num,
+        pro.process_status,
+        pro.dye_num,
+        pro.print_num,
+        pla.plan_type
+        from bus_process pro inner JOIN bus_plan pla on pro.plan_id=pla.plan_id
+        where
+        pro.process_status='25'
+    </select>
+    <update id="completeArrange">
+
+        update bus_process set
+        process_status=#{processStatus}
+        ,arrange_num=#{arrangeNum}
+        ,arrange_date=now()
+        ,arrange_person=#{arrangePerson}
+        where process_id=#{processId}
+    </update>
+    <select id="getAll" resultType="com.yizu.scgcxx.model.Process">
+        select
+        pro.process_id,
+        substring_index(pro.process_color,"|",-1) process_color,
+        substring_index(pro.process_cus,"|",-1) process_cus,
+        substring_index(pro.process_std,"|",-1) process_std,
+        pro.group_num,
+        pro.pretreat_num,
+        pro.process_status,
+        pro.dye_num,
+        pro.print_num,
+        pla.plan_type
+        from bus_process pro inner JOIN bus_plan pla on pro.plan_id=pla.plan_id
+        where pro.process_status!='05'
+        and pro.process_status!='10'
+        and pro.process_status!='15'
+        and pro.process_status!='20'
+
+    </select>
+</mapper>

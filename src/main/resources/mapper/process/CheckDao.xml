@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.process.CheckDao">
+    <select id="getAll" resultType="com.yizu.scgcxx.model.Process">
+        SELECT
+        s.process_id,
+        s.plan_id,
+        s.process_std,
+        s.arrange_num,
+        s.process_status,
+        s.process_cus,
+        s.process_color,
+        (select sum(product_num) FROM bus_product WHERE product_level='01' and process_id=s.process_id) process_one,
+        (select sum(product_num) FROM bus_product WHERE product_level='02' and process_id=s.process_id) process_two,
+        (select sum(product_num) FROM bus_product WHERE product_level='03' and process_id=s.process_id) process_three,
+        (select sum(product_num) FROM bus_product WHERE product_level='04' and process_id=s.process_id) process_four,
+        (select sum(product_num) FROM bus_product WHERE process_id=s.process_id) process_total,
+        (s.arrange_num-IFNULL((select sum(product_num) FROM bus_product WHERE process_id=s.process_id),0)) plan_Residue2
+        from
+        bus_process s
+        where
+        s.process_status='25' or s.process_status='30' or s.process_status='35'
+    </select>
+
+    <insert id="AddMessageDuct">
+        insert into bus_product(
+        process_id,
+        product_cus,
+        product_std,
+        process_color,
+        product_level,
+        <if test="checkNum!=null and checkNum!=''">
+            product_num,
+        </if>
+
+        product_status
+        )VALUE(
+        #{processId},
+        #{processCus},
+        #{processStd},
+        #{processColor},
+        #{productLevel},
+        <if test="checkNum!=null and checkNum!=''">
+            #{checkNum},
+        </if>
+        #{processStatus}
+        )
+
+    </insert>
+    <update id="updateDuct">
+        update bus_product
+        <set>
+            <if test="checkNum!=null and checkNum!=''">
+                product_num=product_num+#{checkNum},
+            </if>
+            product_status=#{processStatus}
+        </set>
+        where process_id=#{processId} and product_level=#{productLevel}
+    </update>
+    <update id="updateNull">
+        update bus_product set product_status='35' where process_id=#{processId} and product_num=0
+    </update>
+    <update id="updateProcess">
+        update bus_process
+        <set>
+            <if test='processStatus== "30"'>
+                check_num=check_num+#{checkNum},
+                process_status=#{processStatus}
+            </if>
+            <if test='processStatus== "35"'>
+                check_num=check_num+#{checkNum},
+                process_status=#{processStatus},
+                check_person=#{checkPerson},
+                check_date=now()
+            </if>
+        </set>
+        where process_id=#{processId}
+    </update>
+</mapper>

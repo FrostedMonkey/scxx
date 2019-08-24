@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.safty.UrDao">
+
+    <insert id="addUr">
+        insert into
+        sys_ur(u_id,ro_id)
+        values
+        <foreach collection="roleIds" item="roleId" index="i" open="" close="" separator=",">
+            (#{uId},#{roleId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteAllUr">
+        delete from sys_ur where u_id = #{uId}
+    </delete>
+
+</mapper>
+
+
+
+

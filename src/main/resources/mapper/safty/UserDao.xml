@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.safty.UserDao">
+
+    <sql id="Base_Column_List">
+        u_id,
+        u_name,
+        u_pwd,
+        u_status
+
+    </sql>
+
+    <select id="getUsers" resultType="com.yizu.scgcxx.model.User">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_user
+        <where>
+            <if test="uId != null">
+                and u_id like concat('%',#{uId},'%')
+            </if>
+            <if test="uName != null and uName !=''">
+                and u_name like concat('%',#{uName},'%')
+            </if>
+            <if test="uStatus != null and uStatus !=''">
+                and u_status = #{uStatus}
+            </if>
+            <if test="uStatus == null or uStatus ==''">
+                and u_status != '99'
+            </if>
+        </where>
+    </select>
+
+    <insert id="addUser" parameterType="com.yizu.scgcxx.model.User">
+        insert into sys_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="uId != null">
+                u_id,
+            </if>
+            <if test="uName != null">
+                u_name,
+            </if>
+            <if test="uPwd != null">
+                u_pwd,
+            </if>
+            u_status
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="uId != null">
+                #{uId,jdbcType=VARCHAR},
+            </if>
+            <if test="uName != null">
+                #{uName,jdbcType=VARCHAR},
+            </if>
+            <if test="uPwd != null">
+                #{uPwd,jdbcType=VARCHAR},
+            </if>
+            '00'
+        </trim>
+    </insert>
+
+    <update id="updateById">
+        update sys_user
+        <set>
+            <if test="uName != null">
+                u_name = #{uName,jdbcType=VARCHAR},
+            </if>
+            <if test="uPwd != null">
+                u_pwd = #{uPwd,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where u_id = #{uId,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateUserStatusById">
+        update sys_user
+        set u_status = #{uStatus}
+        where u_id = #{uId,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateUserStatusByIds">
+        update
+        sys_user
+        set
+        u_status=#{uStatus}
+        where u_id in
+        <foreach open="(" collection="uIds" item="uId" close=")" separator=",">
+            #{uId}
+        </foreach>
+    </update>
+
+    <!--向用户分配角色  -->
+    <select id="getRoles" resultType="com.yizu.scgcxx.model.Role">
+        SELECT distinct
+        e.ro_id,
+        e.ro_name,
+        u.u_id
+        FROM
+        sys_role e
+        left JOIN sys_ur r ON r.ro_id = e.ro_id
+        left JOIN (select u_id from sys_user where u_id=#{uId}) u ON u.u_id = r.u_id
+        where e.ro_status='55'
+    </select>
+    <update id="updUserPwd">
+        update
+        sys_user
+        set
+        u_pwd=#{newPwd}
+        where
+        u_id=#{uId}
+    </update>
+
+    <select id="findModulesOfUser" resultType="com.yizu.scgcxx.model.Module">
+        select distinct m.m_id,m.m_name,m.m_url
+        from
+        sys_ur ur inner join sys_role r on ur.ro_id = r.ro_id
+        inner join sys_rm rm on r.ro_id = rm.ro_id
+        inner join sys_module m on rm.m_id = m.m_id
+        where m.m_status = '55' and
+        m.m_pid is not null and
+        m.m_ismenu = 1 and
+        ur.u_id=#{u_id}
+    </select>
+</mapper>

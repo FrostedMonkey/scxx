@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.plan.ManagerDao">
+    <select id="getMeanger" resultType="com.yizu.scgcxx.model.Plan">
+        SELECT
+        p.plan_id,
+        p.standard_id,
+        p.cus_id,
+        p.co_id,
+        p.plan_xh,
+        p.plan_month,
+        p.plan_num,
+        p.plan_type,
+        p.plan_date,
+        p.plan_person,
+        p.plan_status,
+        c.cus_name,
+        d.standard_name,
+        r.co_name
+        FROM
+        bus_plan p
+        left JOIN info_customer c ON p.cus_id = c.cus_id
+        left JOIN info_color r ON p.co_id = r.co_id
+        left JOIN info_standard d ON p.standard_id = d.standard_id
+        where 1 = 1
+        <if test="planId != null">
+            and p.plan_id like concat('%',#{planId},'%')
+        </if>
+        <if test="standardId != null">
+            and p.standard_id=#{standardId}
+        </if>
+        <if test="cusId != null">
+            and p.cus_id=#{cusId}
+        </if>
+        <if test="coId != null">
+            and p.co_id=#{coId}
+        </if>
+        <if test="planXh">
+            and p.plan_xh=#{planXh}
+        </if>
+        <if test="planMonth != null and planMonth !=''">
+            and p.plan_month like concat('%',#{planMonth},'%')
+        </if>
+        <if test="planNum != null">
+            and p.plan_num=#{planNum}
+        </if>
+        <if test="planType != null">
+            and p.plan_type =#{planType}
+        </if>
+        <if test="planDate != null">
+            and p.plan_date &gt;= #{planDate}
+        </if>
+
+        <if test="planPerson != null and planPerson!=''">
+            and p.plan_person like concat('%',#{planPerson},'%')
+        </if>
+        <if test="planStatus !=null">
+            and p.plan_Status=#{planStatus}
+        </if>
+    </select>
+    <insert id="addManager">
+        insert into bus_plan (
+        standard_id,
+        cus_id,
+        co_id,
+        plan_xh,
+        plan_month,
+        plan_num,
+        plan_type,
+        plan_date,
+        plan_person,
+        plan_status)values(
+        #{standardId},
+        #{cusId},
+        #{coId},
+        #{planXh},
+        #{planMonth},
+        #{planNum},
+        #{planType},
+        #{planDate},
+        #{planPerson},
+        0
+        )
+    </insert>
+    <select id="queryById" resultType="com.yizu.scgcxx.model.Plan">
+        select
+        s.standard_name,
+        s.standard_id,
+        p.plan_id,
+        cu.cus_name,
+        cu.cus_id,
+        co.co_id,
+        co.co_name,
+        p.plan_xh,
+        p.plan_month,
+        p.plan_num,
+        p.plan_type,
+        p.plan_date,
+        p.plan_status,
+        p.plan_person
+        from
+        bus_plan p
+        left join info_color co on p.co_id=co.co_id
+        left join info_customer cu on p.cus_id=cu.cus_id
+        left join info_standard s on p.standard_id=s.standard_id
+        where
+        co.co_status='55' AND
+        cu.cus_status='55' AND
+        s.standard_status='55' and
+        p.plan_id=#{planId}
+    </select>
+    <update id="updateManagerById">
+        update bus_plan set
+        plan_status=1,
+        plan_date= now(),
+        plan_person=#{planPerson}
+        where plan_id=#{planId}
+
+    </update>
+    <delete id="deleteManagerById">
+        delete from bus_plan where plan_id=#{planId};
+    </delete>
+    <update id="updateManager">
+        update bus_plan
+        <set>
+            <if test="standardId!=null">
+                standard_id=#{standardId},
+            </if>
+            <if test="cusId!=null">
+                cus_id=#{cusId},
+            </if>
+            <if test="coId!=null">
+                co_id=#{coId},
+            </if>
+            <if test="planXh!=null">
+                plan_xh=#{planXh},
+            </if>
+            <if test="planMonth!=null and planMonth!=''">
+                plan_month=#{planMonth},
+            </if>
+            <if test="planNum!=null">
+                plan_num=#{planNum},
+            </if>
+            <if test="planType!=null">
+                plan_type=#{planType},
+            </if>
+            <if test="planDate!=null">
+                plan_date=#{planDate},
+            </if>
+            <if test="planPerson!=null and planPerson!=''">
+                plan_person=#{planPerson},
+            </if>
+            <if test="planStatus!=null">
+                plan_status=#{planStatus}
+            </if>
+        </set>
+        where plan_id=#{planId}
+    </update>
+    <delete id="deleteManagerByIds">
+        delete from bus_plan where plan_id in
+        <foreach collection="array" item="ids" open="(" close=")" separator=",">
+            #{ids}
+        </foreach>
+    </delete>
+    <update id="updateByIds">
+        update
+        bus_plan
+        set plan_status=1,
+        plan_person=#{username}
+        where
+        plan_id in
+        <foreach collection="planIds" item="planId" separator="," open="(" close=")">
+            #{planId}
+        </foreach>
+    </update>
+</mapper>

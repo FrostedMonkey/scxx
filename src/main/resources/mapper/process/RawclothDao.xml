@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.process.RawclothDao">
+    <select id="getRawcloth" resultType="com.yizu.scgcxx.model.Process">
+        select
+        process_id,
+        plan_id,
+        process_cus,
+        process_std,
+        process_color,
+        group_num,
+        group_date,
+        group_person,
+        process_status
+        from
+        bus_process
+    </select>
+    <select id="getTotal" resultType="com.yizu.scgcxx.model.Process">
+        select distinct
+        concat_ws("|", pn.standard_id,ist.standard_name) process_std,
+        concat_ws("|", pn.cus_id,icu.cus_name) process_cus,
+        concat_ws("|", pn.co_id,ico.co_name) process_color,
+        pn.plan_id,
+        pn.plan_num,
+        (pn.plan_num - IFNULL((SELECT sum(group_num)FROM bus_process where plan_id=pn.plan_id),0)) as plan_residue
+        FROM
+        bus_plan pn
+        INNER JOIN info_color ico ON pn.co_id = ico.co_id
+        INNER JOIN info_customer icu ON pn.cus_id = icu.cus_id
+        INNER JOIN info_standard ist ON pn.standard_id = ist.standard_id
+        where pn.plan_status=1
+        ORDER BY
+        pn.plan_id
+    </select>
+    <insert id="addProcess">
+        insert into bus_process (
+        process_cus,
+        process_std,
+        process_color,
+        group_num,
+        plan_id,
+        group_person,
+        process_status,
+        group_date
+        )
+        values
+        (
+        #{processCus},
+        #{processStd},
+        #{processColor},
+        #{groupNum},
+        #{planId},
+        #{groupPerson},
+        '00',
+        now()
+        )
+    </insert>
+    <delete id="deleteById">
+        delete from bus_process where process_id=#{processId}
+    </delete>
+    <update id="updateById">
+        update bus_process set
+        process_status=#{processStatus},
+        group_person=#{username},
+        group_date=now()
+        where process_id=#{processId}
+    </update>
+    <select id="queryById" resultType="com.yizu.scgcxx.model.Process">
+        select distinct
+        bus_process.process_id,
+        bus_process.process_cus,
+        bus_process.process_std,
+        bus_process.process_color,
+        bus_plan.plan_num,
+        bus_process.group_num,
+        bus_process.group_date,
+        bus_process.group_person,
+        (bus_plan.plan_num -(SELECT sum(group_num) FROM bus_process where plan_id=bus_plan.plan_id)) as plan_residue
+        FROM
+        bus_process
+        left JOIN bus_plan on bus_process.plan_id=bus_plan.plan_id
+        where bus_process.process_id=#{processId}
+    </select>
+    <select id="queryResidueById" resultType="com.yizu.scgcxx.model.Process">
+        select distinct
+        bus_process.process_id,
+        bus_process.process_cus,
+        bus_process.process_std,
+        bus_process.process_color,
+        bus_plan.plan_num,
+        bus_process.group_num,
+        bus_process.group_date,
+        bus_process.group_person,
+        (bus_plan.plan_num - IFNULL((SELECT sum(group_num)FROM bus_process where plan_id=#{planId} and
+        process_id!=#{processId}),0)) as plan_residue
+        FROM
+        bus_process
+        left JOIN bus_plan on bus_process.plan_id=bus_plan.plan_id
+        where bus_process.process_id=#{processId}
+
+    </select>
+    <update id="updateProcess">
+        update bus_process
+        <set>
+            <if test="groupNum!=null and groupNum!=''">
+                group_num=#{groupNum},
+            </if>
+            <if test="groupDate!=null and groupDate!=''">
+                group_date=#{groupDate},
+            </if>
+            <if test="groupPerson!=null and groupPerson!=''">
+                group_person=#{groupPerson}
+            </if>
+        </set>
+        where process_id=#{processId}
+
+    </update>
+</mapper>

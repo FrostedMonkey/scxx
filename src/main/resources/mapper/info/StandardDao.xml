@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yizu.scgcxx.dao.info.StandardDao">
+    <select id="queryStandard" resultType="com.yizu.scgcxx.model.Standard">
+        select * from info_standard
+        <where>
+            <if test="standardName != null and standardName != '' ">
+                and standard_name like concat('%',#{standardName},'%')
+            </if>
+            <if test="standardId != null">
+                and standard_id like concat('%',#{standardId},'%')
+            </if>
+            <if test="standardRemark != null and standardRemark != '' ">
+                and standard_remark like concat('%',#{standardRemark},'%')
+            </if>
+            <if test="standardStatus != null and standardStatus != '' ">
+                and standard_status=#{standardStatus}
+            </if>
+        </where>
+    </select>
+    <insert id="addStandard">
+        insert into info_standard(
+        `standard_name`,
+        `standard_remark`,
+        `standard_status`
+        )values(
+        #{standardName},
+        #{standardRemark},
+        '00'
+        )
+    </insert>
+    <update id="deleteById">
+        update info_standard set standard_status='99' where `standard_id`=#{standardId}
+    </update>
+    <update id="deleteByIds">
+        update info_standard set standard_status='99' where `standard_id` in
+        <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+    <update id="updateStandard">
+        update info_standard
+        <set>
+            <if test="standardName!=null and standardName!=''">
+                standard_name=#{standardName},
+            </if>
+            <if test="standardRemark!=null and standardRemark!=''">
+                standard_remark=#{standardRemark},
+            </if>
+            <if test="standardStatus!=null and standardStatus!=''">
+                standard_status=#{standardStatus}
+            </if>
+        </set>
+        where standard_id=#{standardId};
+    </update>
+    <select id="query" resultType="com.yizu.scgcxx.model.Standard">
+        select * from info_standard
+        <where>
+            <if test="standardId!=null">
+                standard_id=#{standardId}
+            </if>
+            <if test="standardName!=null and standardName!=''">
+                and `standard_name` like concat('%',#{standardName},'%')
+            </if>
+            <if test="standardStatus!=null and standardStatus!=''">
+                and `standard_status`=#{standardStatus}
+            </if>
+        </where>
+    </select>
+    <update id="updateState">
+        update info_standard set standard_status=#{standardStatus} where standard_id=#{standardId}
+    </update>
+    <update id="updateStateByids">
+        update
+        info_standard
+        set
+        standard_status=#{standardStatus}
+        <where>
+            <!-- 1 &lt;&gt; 1 or -->
+            <foreach collection="ids" item="standardId" open="" close="" separator="or">
+                standard_id = #{standardId}
+            </foreach>
+        </where>
+    </update>
+    <select id="standardQuery" resultType="com.yizu.scgcxx.model.Standard">
+        select standard_Id,standard_Name from info_standard
+    </select>
+
+</mapper>
+
